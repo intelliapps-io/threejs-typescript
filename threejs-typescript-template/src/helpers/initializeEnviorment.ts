@@ -13,7 +13,7 @@ export function initializeEnviorment() {
   window.MOUSE_VECTOR = new THREE.Vector3()
   window.addEventListener('mousemove', event => {
     window.MOUSE_VECTOR = computeMouseVector(event, camera)
-    console.log(window.MOUSE_VECTOR)
+    // console.log(window.MOUSE_VECTOR)
   })
 
   return ({

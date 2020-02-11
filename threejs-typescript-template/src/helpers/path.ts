@@ -52,6 +52,27 @@ export const getPathSize = (vertices: THREE.Vector3[]): { width: number, height:
   })
 }
 
+export const getBaseOffset = (totalLength: number, _offset: number): number => {
+  if (_offset >= 0 && _offset <= totalLength)
+    return _offset
+  const base = _offset - Math.floor(_offset / totalLength) * totalLength
+  return _offset < 0 ? totalLength - base : base
+}
+
+export const getPathPoint = (pathLines: IPathLine[], totalLength: number, _offset: number): [number, number] => {
+  const offset = getBaseOffset(totalLength, _offset)
+  const pathLine = pathLines.find(_pathLine => _pathLine.distFrom <= offset && _pathLine.distTo >= offset)
+  if (pathLine) {
+    const angleBetween = Math.atan2(pathLine.p2.y - pathLine.p1.y, pathLine.p2.x - pathLine.p1.x),
+      distAlongPath = offset - pathLine.distFrom,
+      p1 = pathLine.p1,
+      p2x = p1.x + distAlongPath * Math.cos(angleBetween),
+      p2y = p1.y + distAlongPath * Math.sin(angleBetween)
+    return [p2x, p2y]
+  }
+  return [0, 0]
+}
+
 
 //////////////////////////////////////////
 /////////////// LOGO VERTS ///////////////

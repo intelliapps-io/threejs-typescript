@@ -17,7 +17,7 @@ camera.position.z = 10;
 // var pointLightHelper = new THREE.PointLightHelper( light, sphereSize );
 // scene.add( pointLightHelper );
 
-const logo = new Logo(300)
+const logo = new Logo(600)
 
 scene.add(logo.getLine())
 
@@ -29,9 +29,7 @@ const animate = () => {
 
   // line.rotation.x += 0.01
   // line.rotation.y += 0.01
-
-  // geometry.setFromPoints(getVertices({ scale: 1 / 50}))
-  // geometry.center()
+  logo.getLine()
 
   logo.update()
 

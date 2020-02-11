@@ -6,12 +6,16 @@ export interface ForceOptions {
   maxSpeed: number
   avoid?: boolean
   maxDist?: number
+  ease?: boolean
 }
+
+type Attributes = { [key: string]: any }
 
 export class EnhancedVector3 extends THREE.Vector3 {
   protected target: THREE.Vector3
   protected velocity: THREE.Vector3
   protected acceleration: THREE.Vector3
+  protected attributes: Attributes = {}
 
   constructor(x?: number, y?: number, z?: number) {
     super(x, y, z)
@@ -21,19 +25,19 @@ export class EnhancedVector3 extends THREE.Vector3 {
   }
 
   protected createForce(target: THREE.Vector3, options: ForceOptions): THREE.Vector3 {
-    const { maxForce, maxSpeed, maxDist, avoid } = options
+    const { maxForce, maxSpeed, maxDist, avoid, ease } = options
 
     const desired = target.clone().sub(this),
       dist = desired.length()
 
     if (avoid) {
       desired.multiplyScalar(-1)
-      desired.setLength(map(dist, 100, 0, 0, maxSpeed))
+      desired.setLength(ease ? map(dist, 100, 0, 0, maxSpeed) : maxSpeed)
     } else
-      desired.setLength(map(dist, 0, 100, 0, maxSpeed))
+      desired.setLength(ease ? map(dist, 0, 100, 0, maxSpeed) : maxSpeed)
 
     const steer = desired.clone().sub(this.velocity),
-      steerLimit = map(dist, 0, 100, 0, maxForce)
+      steerLimit = ease ? map(dist, 0, 100, 0, maxForce) : maxForce
 
     if (steer.length() > steerLimit)
       steer.setLength(steerLimit)
@@ -43,6 +47,12 @@ export class EnhancedVector3 extends THREE.Vector3 {
     else
       return window.ZERO_VECTOR
   }
+
+  // attribute methods
+  public setAttribute = (key: string, getValue: (currentValue: any) => any) => this.attributes[key] = getValue(this.attributes[key])
+  public setAttributes = (attributes: Attributes) => this.attributes = attributes
+  public getAttribute = (key: string) => this.attributes[key]
+  public getAttributes = () => this.attributes
 
   public setTarget = (x: number, y: number, z: number) => {
     this.target.setX(x)

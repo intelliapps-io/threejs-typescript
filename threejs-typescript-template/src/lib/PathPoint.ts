@@ -1,27 +1,6 @@
 import * as THREE from 'three'
 import { EnhancedVector3 } from './EnhancedVector3';
-import { IPathLine, getPathLines } from '../helpers/path';
-
-function getBaseOffset(totalLength: number, _offset: number): number {
-  if (_offset >= 0 && _offset <= totalLength)
-    return _offset
-  const base = _offset - Math.floor(_offset / totalLength) * totalLength
-  return _offset < 0 ? totalLength - base : base
-}
-
-const getPathPoint = (pathLines: IPathLine[], totalLength: number, _offset: number): [number, number] => {
-  const offset = getBaseOffset(totalLength, _offset)
-  const pathLine = pathLines.find(_pathLine => _pathLine.distFrom <= offset && _pathLine.distTo >= offset)
-  if (pathLine) {
-    const angleBetween = Math.atan2(pathLine.p2.y - pathLine.p1.y, pathLine.p2.x - pathLine.p1.x),
-      distAlongPath = offset - pathLine.distFrom,
-      p1 = pathLine.p1,
-      p2x = p1.x + distAlongPath * Math.cos(angleBetween),
-      p2y = p1.y + distAlongPath * Math.sin(angleBetween)
-    return [p2x, p2y]
-  }
-  return [0, 0]
-}
+import { IPathLine, getPathLines, getPathPoint } from '../helpers/path';
 
 export class PathPoint extends EnhancedVector3 {
   protected pathLines: IPathLine[]
@@ -34,37 +13,39 @@ export class PathPoint extends EnhancedVector3 {
     this.totalLength = totalLength
     this.offset = offset
     
-    //initialize point on path
+    // initialize point on path
     const [x, y] = getPathPoint(this.pathLines, this.totalLength, this.offset)
     this.setX(x)
     this.setY(y)
+    this.setTarget(x, y, 0)
   }
 
   public setOffset(func: (offset: number) => number) {
     this.offset = func(this.offset)
     const [x, y] = getPathPoint(this.pathLines, this.totalLength, this.offset)
-    // maybe try setting point itself 
     this.target.setX(x)
     this.target.setY(y)
   }
   
   public update() {
     this.seekTarget(this.target, {
-      maxForce: 5,
-      maxSpeed: 5
+      maxForce: 3,
+      maxSpeed: 5,
+      ease: true 
     })
 
     const mouse = window.MOUSE_VECTOR.clone()
-    const mouseSize = 3
+    const mouseSize = 2
 
-    mouse.setX(mouse.x + (mouseSize * 3/2))
+    mouse.setX(mouse.x + (mouseSize * 2))
     mouse.setY(mouse.y - (mouseSize))
     
     this.seekTarget(mouse, {
-      maxForce: 1,
-      maxSpeed: 1,
+      maxForce: 0.5,
+      maxSpeed: 0.02,
       avoid: true,
-      maxDist: 3
+      maxDist: mouseSize,
+      ease: true 
     })
   }
 }

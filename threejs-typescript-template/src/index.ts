@@ -17,7 +17,7 @@ camera.position.z = 10;
 // var pointLightHelper = new THREE.PointLightHelper( light, sphereSize );
 // scene.add( pointLightHelper );
 
-const logo = new Logo(300)
+const logo = new Logo(600)
 
 scene.add(new THREE.AmbientLight(0x222222));
 

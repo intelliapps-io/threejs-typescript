@@ -7,10 +7,10 @@ export const rand = (max: number, min?: number) => Math.random() * (max - (min ?
 // Mouse Vector (source: https://stackoverflow.com/questions/13055214/mouse-canvas-x-y-to-three-js-world-x-y-z)
 var vec = new THREE.Vector3(); // create once and reuse
 var pos = new THREE.Vector3(); // create once and reuse
-export const computeMouseVector = (mouse: [number, number], camera: THREE.Camera) => {
+export const computeMouseVector = (event: MouseEvent, camera: THREE.Camera) => {
   vec.set(
-    (mouse[0] / window.innerWidth) * 2 - 1,
-    - (mouse[1] / window.innerHeight) * 2 + 1,
+    (event.clientX / window.innerWidth) * 2 - 1,
+    - (event.clientY / window.innerHeight) * 2 + 1,
     0.5);
   vec.unproject(camera);
   vec.sub(camera.position).normalize();

@@ -17,7 +17,13 @@ camera.position.z = 10;
 // var pointLightHelper = new THREE.PointLightHelper( light, sphereSize );
 // scene.add( pointLightHelper );
 
-const logo = new Logo(600)
+const logo = new Logo(300)
+
+scene.add(new THREE.AmbientLight(0x222222));
+
+var light = new THREE.PointLight(0xffffff);
+light.position.copy(camera.position);
+scene.add(light);
 
 scene.add(logo.getLine())
 
@@ -29,7 +35,7 @@ const animate = () => {
 
   // line.rotation.x += 0.01
   // line.rotation.y += 0.01
-  logo.getLine()
+  logo.getMaterial().resolution.set(window.innerWidth, window.innerHeight)
 
   logo.update()
 

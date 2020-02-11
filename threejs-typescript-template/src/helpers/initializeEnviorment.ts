@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { computeMouseVector } from './helpers';
 
 export function initializeEnviorment() {
@@ -9,6 +10,10 @@ export function initializeEnviorment() {
   renderer.setClearColor(0x000000, 0.0)
   renderer.setSize(window.innerWidth, window.innerHeight)
   document.body.appendChild(renderer.domElement)
+
+  const controls = new OrbitControls(camera, renderer.domElement)
+  controls.minDistance = 5
+  controls.maxDistance = 15
 
   window.ZERO_VECTOR = new THREE.Vector3()
   window.MOUSE_VECTOR = new THREE.Vector3(0, 0, 100)

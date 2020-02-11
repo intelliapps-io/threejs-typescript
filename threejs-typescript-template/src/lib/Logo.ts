@@ -1,8 +1,8 @@
 import * as THREE from "three"
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry"
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial"
-import { IPathLine, getPathLines, getVertices, getPathLength } from "../helpers/path"
-import { EnhancedVector3 } from "./EnhancedVector3"
+import { Line2 } from "three/examples/jsm/lines/Line2"
+import { IPathLine, getPathLines, getVertices, getPathLength, getPathPoint } from "../helpers/path"
 import { PathPoint } from "./PathPoint"
 
 export class Logo {
@@ -14,9 +14,9 @@ export class Logo {
   // rendering
   protected positions: number[] = []
   protected colors: number[] = []
-  protected material: THREE.LineBasicMaterial
-  protected geometry: THREE.BufferGeometry
-  protected line: THREE.Line
+  protected material: LineMaterial
+  protected geometry: LineGeometry
+  protected line: Line2
 
   constructor(totalPoints: number) {
     this.vertices = getVertices({ scale: 1 / 50 })
@@ -33,22 +33,31 @@ export class Logo {
     }
 
     // rendering
-    this.setColors() 
-    this.geometry = new THREE.BufferGeometry().setFromPoints(this.pathPoints);
-    this.geometry.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));
-    this.geometry.setAttribute('color', new THREE.Float32BufferAttribute(this.colors, 3));
+    this.setColors()
+
+    this.geometry = new LineGeometry()
+    // this.geometry.setFromPoints(this.pathPoints)
+    this.geometry.setPositions(this.positions)
+    this.geometry.setColors(this.colors)
     this.geometry.center()
 
-    const lineMat = new LineMaterial({
+    // this.geometry = new THREE.BufferGeometry().setFromPoints(this.pathPoints);
+    // this.geometry.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));
+    // this.geometry.setAttribute('color', new THREE.Float32BufferAttribute(this.colors, 3));
+    // this.geometry.center()
+
+    this.material = new LineMaterial({
       color: 0xffffff,
       linewidth: 5, // in pixels
       vertexColors: THREE.VertexColors,
       dashed: false
     })
 
-    this.material = new THREE.LineBasicMaterial({ vertexColors: THREE.VertexColors })
-    
-    this.line = new THREE.Line(this.geometry, this.material);
+    // this.material = new THREE.LineBasicMaterial({ vertexColors: THREE.VertexColors })
+
+    this.line = new Line2(this.geometry, this.material);
+    this.line.computeLineDistances();
+    this.line.scale.set(1, 1, 1);
   }
 
   protected setColors() {
@@ -63,14 +72,25 @@ export class Logo {
 
   public getLine = () => this.line
 
-  public update() {
-    this.pathPoints.forEach(pathPoint => {
-      pathPoint.setOffset(offset => offset + 0.01)
-      pathPoint.setAttribute('colorOffset', offset => offset + 1)
-      pathPoint.update()
-    })
+  public getMaterial = () => this.material
 
-    this.geometry.setFromPoints(this.pathPoints);
+  public update() {
+    let positions: number[] = [] 
+    this.pathPoints.forEach((pathPoint, i) => {
+      if (i === 0) {
+        const r = this.colors[i], g = this.colors[i + 1], b = this.colors[i + 2]
+        this.colors.splice(i, 3)
+        this.colors.push(r, g, b)
+      }
+      pathPoint.update()
+      positions.push(pathPoint.x, pathPoint.y, pathPoint.z)
+    })
+    this.positions = positions
+
+    this.geometry.setPositions(this.positions)
+    this.geometry.setColors(this.colors)
     this.geometry.center()
+    // this.geometry.setFromPoints(this.pathPoints);
+    // this.geometry.center()
   }
 }

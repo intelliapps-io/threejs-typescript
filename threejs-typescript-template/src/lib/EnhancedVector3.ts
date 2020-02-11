@@ -50,9 +50,7 @@ export class EnhancedVector3 extends THREE.Vector3 {
 
   // attribute methods
   public setAttribute = (key: string, getValue: (currentValue: any) => any) => this.attributes[key] = getValue(this.attributes[key])
-  public setAttributes = (attributes: Attributes) => this.attributes = attributes
   public getAttribute = (key: string) => this.attributes[key]
-  public getAttributes = () => this.attributes
 
   public setTarget = (x: number, y: number, z: number) => {
     this.target.setX(x)

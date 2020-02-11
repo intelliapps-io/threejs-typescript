@@ -47,5 +47,13 @@ export class PathPoint extends EnhancedVector3 {
       maxDist: mouseSize,
       ease: true 
     })
+    
+    this.seekTarget(mouse.clone().setZ(5), {
+      maxForce: 0.5,
+      maxSpeed: 0.02,
+      avoid: true,
+      maxDist: mouseSize,
+      ease: true 
+    })
   }
 }

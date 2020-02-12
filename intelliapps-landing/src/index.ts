@@ -3,6 +3,7 @@ import { initializeEnviorment } from './helpers/initializeEnviorment';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { jsonfont } from './helpers/jsonfont'
 import { Text } from './lib/Text'
+import { LineText } from './lib/LineText';
 
 const { scene, camera, renderer } = initializeEnviorment()
 camera.position.set(20, 300, 400)
@@ -106,11 +107,17 @@ const text = new Text('INTELLIAPPS.IO', {
   size: 70
 })
 
-scene.add(text.getGroup())
-
-text.getShapes().forEach(shape => {
-  scene.add(shape)
+const lineText = new LineText('INTELLIAPPS.IO', {
+  curveSegments: 4,
+  hight: 1,
+  size: 100
 })
+
+scene.add(lineText.getMesh())
+
+// text.getShapes().forEach(shape => {
+//   scene.add(shape)
+// })
 
 //////////////////
 // Drawing Loop //

@@ -53,7 +53,7 @@ export class Text {
         }
       }
 
-      // CREATE SHAPES
+      // CREATE TRIANGLES
       const triGeo = new THREE.BufferGeometry()
       const triMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
       let vertices = new Float32Array([
@@ -87,6 +87,8 @@ export class Text {
   }
 
   public getGroup = () => this.group
+
+  public getShapeGeometry = () => this.shapeGeometry
 
   public getShapes = () => this.shapes
 }

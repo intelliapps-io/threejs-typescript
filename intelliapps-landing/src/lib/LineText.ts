@@ -13,74 +13,97 @@ export interface ITextOptions {
 export class LineText {
   text: string = ''
   options: ITextOptions
-  textGeometry = new THREE.TextGeometry(this.text, { font: new THREE.Font(jsonfont) })
-  // lines
+  // geometry
+  geometry = new THREE.TextBufferGeometry(this.text, { font: new THREE.Font(jsonfont) })
   vertices: EnhancedVector3[] = []
   positions: number[] = []
   colors: number[] = []
-  lineGeometry = new THREE.BufferGeometry()
-  lineMaterial = new THREE.LineBasicMaterial()
   line = new THREE.Line()
+  maxRand: number = 10
+  // material
+  uniforms: any
 
   constructor(text: string, options: ITextOptions) {
     this.options = options
     this.setText(text)
   }
 
+  private getRand = (max?: number) => rand(max ? max : this.maxRand, (max ? max : this.maxRand) * -1)
+
   private setText(text: string) {
     this.text = text
-    this.textGeometry = new THREE.TextGeometry(this.text, {
+    this.geometry = new THREE.TextBufferGeometry(this.text, {
       ...this.options,
       font: new THREE.Font(jsonfont),
       bevelThickness: 5,
-      bevelSize: 1.5,
+      bevelSize: 5,
       bevelEnabled: true,
-      bevelSegments: 2,
-    })
-    this.textGeometry.computeBoundingBox()
-    this.textGeometry.computeVertexNormals()
-
-    this.textGeometry.faces.forEach((face, i) => {
-      var va = this.textGeometry.vertices[face.a];
-      var vb = this.textGeometry.vertices[face.b];
-      var vc = this.textGeometry.vertices[face.c];
-
-      // create vertices
-      this.vertices.push(
-        new EnhancedVector3().copy(va),
-        new EnhancedVector3().copy(vb),
-        new EnhancedVector3().copy(vc),
-      )
+      bevelSegments: 5,
     })
 
-    // create positions & colors
-    this.positions = []; this.colors = []
-    const color = new THREE.Color()
-    this.vertices.forEach((vertice, i) => {
-      const { x, y, z } = vertice
-      vertice.normalize()
-      const maxRandTarget = 10, maxRandPos = 50
-      vertice.setX(rand(maxRandPos) + x); vertice.setY(rand(maxRandPos) + y); vertice.setZ(rand(maxRandPos) + z)
-      vertice.setTarget(rand(maxRandTarget) + x, rand(maxRandTarget) + y, rand(maxRandTarget) + z)
-      this.positions.push(x, y, z)
-      color.setHSL(i / (this.vertices.length), 1.0, 0.5)
-      this.colors.push(color.r, color.g, color.b)
+    this.uniforms = {
+      amplitude: { value: 5.0 },
+      opacity: { value: 0.3 },
+      color: { value: new THREE.Color(0xffffff) }
+    }
+
+    const shaderMaterial = new THREE.ShaderMaterial({
+      uniforms: this.uniforms,
+      vertexShader: `
+        uniform float amplitude;
+        attribute vec3 displacement;
+        attribute vec3 customColor;
+        varying vec3 vColor;
+        void main() {
+          vec3 newPosition = position + amplitude * displacement;
+          vColor = customColor;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 color;
+        uniform float opacity;
+        varying vec3 vColor;
+        void main() {
+          gl_FragColor = vec4( vColor * color, opacity );
+        }
+      `,
+      blending: THREE.AdditiveBlending,
+      depthTest: false,
+      transparent: true
     })
 
-    // set line geometry
-    // this.lineGeometry.setFromPoints(this.vertices);
-    this.lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));
-    this.lineGeometry.setAttribute('color', new THREE.Float32BufferAttribute(this.colors, 3));
-    this.lineGeometry.center()
+    const count = this.geometry.attributes.position.count;
 
-    // set line material
-    this.lineMaterial = new THREE.LineBasicMaterial({ vertexColors: THREE.VertexColors })
+    const displacement = new THREE.Float32BufferAttribute(count * 3, 3);
+    this.geometry.setAttribute('displacement', displacement);
 
-    // set line mesh
-    this.line = new THREE.Line(this.lineGeometry, this.lineMaterial)
+    const customColor = new THREE.Float32BufferAttribute(count * 3, 3);
+    this.geometry.setAttribute('customColor', customColor);
+
+    this.geometry.center()
+
+    // create vertices
+    this.positions = this.geometry.attributes.position.array as number[]
+    for (let i = 0; i < this.positions.length; i += 3) {
+      const vertice = new EnhancedVector3(this.positions[i], this.positions[i + 1], this.positions[i + 2])
+      const maxStart = 100
+      vertice.setX(this.getRand(maxStart) + vertice.x); vertice.setY(this.getRand(maxStart) + vertice.y); vertice.setZ(this.getRand(maxStart) + vertice.z)
+      this.vertices.push(vertice)
+    }
+
+    var color = new THREE.Color(0xffffff);
+
+    for (var i = 0, l = customColor.count; i < l; i++) {
+      color.setHSL(i / l, 0.5, 0.5);
+      color.toArray(customColor.array, i * customColor.itemSize);
+    }
+
+    this.line = new THREE.Line(this.geometry, shaderMaterial);
   }
 
   update() {
+    this.uniforms.color.value.offsetHSL(0.1, 0, 0);
     this.vertices.forEach(vert => {
       vert.seekTarget('target', {
         maxForce: 1,
@@ -88,29 +111,19 @@ export class LineText {
         ease: true
       })
 
-      const maxRandTarget = 50;
-      vert.seekTarget(new THREE.Vector3(rand(maxRandTarget) + vert.x, rand(maxRandTarget) + vert.y, rand(maxRandTarget) + vert.z), {
+      vert.seekTarget(new THREE.Vector3(this.getRand() + vert.x, this.getRand() + vert.y, this.getRand() + vert.z), {
         maxForce: 1,
         maxSpeed: 1,
-        ease: true
+        // ease: true
       })
     })
-    this.lineGeometry.setFromPoints(this.vertices);
 
-    // create positions & colors
-    this.positions = []; this.colors = []
-    const color = new THREE.Color()
-    this.vertices.forEach((vertice, i) => {
-      const { x, y, z } = vertice
-      this.positions.push(x, y, z)
-      color.setHSL(i / (this.vertices.length), 1.0, 0.5)
-      this.colors.push(color.r, color.g, color.b)
-    })
+    this.positions = []
+    this.vertices.forEach(({ x, y, z }) =>
+      this.positions.push(x, y, z))
 
-    this.lineGeometry.setFromPoints(this.vertices);
-    this.lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));
-    this.lineGeometry.setAttribute('color', new THREE.Float32BufferAttribute(this.colors, 3));
-    this.lineGeometry.center()
+    this.geometry.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3))
+
   }
 
   getMesh = () => this.line

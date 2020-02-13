@@ -6,7 +6,7 @@ import { Text } from './lib/Text'
 import { LineText } from './lib/LineText';
 
 const { scene, camera, renderer } = initializeEnviorment()
-camera.position.set(0, 0, 25000)
+camera.position.set(0, 0, 22000)
 const controls = new OrbitControls(camera, renderer.domElement)
 
 

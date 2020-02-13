@@ -9,7 +9,7 @@ const PATHS = {
 };
 
 module.exports = {
-  mode: "production",
+  mode: "development",
   entry: {
     app: [PATHS.SRC],
   },

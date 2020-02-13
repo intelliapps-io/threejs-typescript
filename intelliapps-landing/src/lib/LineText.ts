@@ -103,18 +103,28 @@ export class LineText {
   }
 
   update() {
-    this.uniforms.color.value.offsetHSL(0.1, 0, 0);
+    // this.uniforms.color.value.offsetHSL(0.1, 0, 0);
+    const mouse = window.MOUSE_VECTOR.clone()
+
     this.vertices.forEach(vert => {
       vert.seekTarget('target', {
         maxForce: 20,
-        maxSpeed: 1,
+        maxSpeed: 2,
         ease: true
       })
 
       const randNum = rand(1000)
       vert.seekTarget(new THREE.Vector3(this.getRand(randNum) + vert.x, this.getRand(randNum) + vert.y, this.getRand(randNum) + vert.z), {
         maxForce: 2,
-        maxSpeed: 2,
+        maxSpeed: 0.5,
+        // ease: true
+      })
+
+      vert.seekTarget(mouse.setZ(vert.z), {
+        maxForce: 20,
+        maxSpeed: rand(20),
+        avoid: true,
+        maxDist: 100,
         // ease: true
       })
     })

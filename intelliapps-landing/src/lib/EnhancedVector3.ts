@@ -32,7 +32,7 @@ export class EnhancedVector3 extends THREE.Vector3 {
 
     if (avoid) {
       desired.multiplyScalar(-1)
-      desired.setLength(ease ? map(dist, 100, 0, 0, maxSpeed) : maxSpeed)
+      desired.setLength(ease ? map(dist, 0, 100, 0, maxSpeed) : maxSpeed)
     } else
       desired.setLength(ease ? map(dist, 0, 100, 0, maxSpeed) : maxSpeed)
 

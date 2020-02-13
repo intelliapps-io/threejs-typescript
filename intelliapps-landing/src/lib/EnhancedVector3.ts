@@ -58,9 +58,9 @@ export class EnhancedVector3 extends THREE.Vector3 {
     this.target.setZ(z)
   }
 
-  public seekTarget(target: THREE.Vector3, options: ForceOptions) {
+  public seekTarget(target: THREE.Vector3 | 'target', options: ForceOptions) {
     // Get Force Vector
-    const force = this.createForce(target, options)
+    const force = this.createForce(target === 'target' ? this.target : target, options)
 
     // Add Force
     this.acceleration.add(force)

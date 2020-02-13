@@ -19,7 +19,7 @@ export class LineText {
   positions: number[] = []
   colors: number[] = []
   line = new THREE.Line()
-  maxRand: number = 10
+  maxRand: number = 5
   // material
   uniforms: any
 
@@ -87,7 +87,7 @@ export class LineText {
     this.positions = this.geometry.attributes.position.array as number[]
     for (let i = 0; i < this.positions.length; i += 3) {
       const vertice = new EnhancedVector3(this.positions[i], this.positions[i + 1], this.positions[i + 2])
-      const maxStart = 100
+      const maxStart = 10
       vertice.setX(this.getRand(maxStart) + vertice.x); vertice.setY(this.getRand(maxStart) + vertice.y); vertice.setZ(this.getRand(maxStart) + vertice.z)
       this.vertices.push(vertice)
     }
@@ -106,14 +106,15 @@ export class LineText {
     this.uniforms.color.value.offsetHSL(0.1, 0, 0);
     this.vertices.forEach(vert => {
       vert.seekTarget('target', {
-        maxForce: 1,
-        maxSpeed: 10,
+        maxForce: 20,
+        maxSpeed: 1,
         ease: true
       })
 
-      vert.seekTarget(new THREE.Vector3(this.getRand() + vert.x, this.getRand() + vert.y, this.getRand() + vert.z), {
-        maxForce: 1,
-        maxSpeed: 1,
+      const randNum = rand(1000)
+      vert.seekTarget(new THREE.Vector3(this.getRand(randNum) + vert.x, this.getRand(randNum) + vert.y, this.getRand(randNum) + vert.z), {
+        maxForce: 2,
+        maxSpeed: 2,
         // ease: true
       })
     })

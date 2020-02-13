@@ -5,11 +5,11 @@ const path = require("path"),
 
 const PATHS = {
   SRC: path.join(__dirname, "src"),
-  DIST: path.join(__dirname, "dist")
+  DIST: path.join(__dirname, "dist"),
 };
 
 module.exports = {
-  mode: "development",
+  mode: "production",
   entry: {
     app: [PATHS.SRC],
   },

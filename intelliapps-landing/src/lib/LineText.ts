@@ -15,6 +15,7 @@ export class LineText {
   options: ITextOptions
   // geometry
   geometry = new THREE.TextBufferGeometry(this.text, { font: new THREE.Font(jsonfont) })
+  material = new THREE.ShaderMaterial()
   vertices: EnhancedVector3[] = []
   positions: number[] = []
   colors: number[] = []
@@ -47,7 +48,7 @@ export class LineText {
       color: { value: new THREE.Color(0xffffff) }
     }
 
-    const shaderMaterial = new THREE.ShaderMaterial({
+    this.material = new THREE.ShaderMaterial({
       uniforms: this.uniforms,
       vertexShader: `
         uniform float amplitude;
@@ -99,11 +100,14 @@ export class LineText {
       color.toArray(customColor.array, i * customColor.itemSize);
     }
 
-    this.line = new THREE.Line(this.geometry, shaderMaterial);
+    this.line = new THREE.Line(this.geometry, this.material);
   }
 
   update() {
-    // this.uniforms.color.value.offsetHSL(0.1, 0, 0);
+    // this.uniforms.color.value.offsetHSL(1, 1, 1);
+
+    this.material.uniforms = this.uniforms
+
     const mouse = window.MOUSE_VECTOR.clone()
 
     this.vertices.forEach(vert => {

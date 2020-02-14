@@ -18,3 +18,10 @@ export const computeMouseVector = (event: MouseEvent, camera: THREE.Camera) => {
   pos.copy(camera.position).add(vec.multiplyScalar(distance));
   return pos
 }
+
+export const getBaseOffset = (max: number, offset: number): number => {
+  if (offset >= 0 && offset <= max)
+    return offset
+  const base = offset - Math.floor(offset / max) * max
+  return offset < 0 ? max - base : base
+}

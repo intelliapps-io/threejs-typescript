@@ -4,42 +4,67 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { jsonfont } from './helpers/jsonfont'
 import { Text } from './lib/Text'
 import { LineText } from './lib/LineText';
+import { LineShape } from './lib/LineShape';
+import { getLogoVertices } from './helpers/logovertices';
+import { EnhancedVector3 } from './lib/EnhancedVector3';
 
 const { scene, camera, renderer } = initializeEnviorment()
-camera.position.set(0, 0, 22000)
+const cameraVector = new EnhancedVector3(0, 0, 22000)
+camera.position.copy(cameraVector)
 const controls = new OrbitControls(camera, renderer.domElement)
-
 
 scene.add(new THREE.AmbientLight(0x222222));
 var light = new THREE.PointLight(0xffffff);
 light.position.copy(camera.position);
 scene.add(light);
 
-//////// LINES
-
+// TEXT
 const lineText = new LineText('INTELLIAPPS.IO', {
   curveSegments: 4,
   hight: 1,
-  size: 300
+  size: 300,
+  positioner: geo => {
+    geo.translate(0, -400, 0)
+  }
 })
+scene.add(lineText.getLine())
 
-scene.add(lineText.getMesh())
-
-// text.getShapes().forEach(shape => {
-//   scene.add(shape)
-// })
+// LOGO
+const lineShape = new LineShape(getLogoVertices({ scale: 3 }), {
+  totalPoints: 100,
+  maxRand: 5,
+  positioner: geo => {
+    geo.translate(0, 400, 0)
+  }
+})
+scene.add(lineShape.getLine())
 
 //////////////////
 // Drawing Loop //
 //////////////////
+const mouseClone = window.MOUSE_VECTOR.clone()
 const animate = () => {
-  requestAnimationFrame(animate);
+  requestAnimationFrame(animate)
 
-  // line.rotation.x += 0.01
-  // line.rotation.y += 0.01
+  // cameraVector.seekTarget('target', {
+  //   maxForce: 20,
+  //   maxSpeed: 2,
+  //   ease: true
+  // })
+  
+  // window.MOUSE_VECTOR.clone() 
+  // cameraVector.seekTarget(mouseClone.setZ(20000), {
+  //   maxForce: 1000,
+  //   maxSpeed: 1,
+  //   ease: true
+  // })
+  // camera.position.copy(cameraVector)
+
+
   lineText.update()
+  lineShape.update()
 
-  renderer.render(scene, camera);
+  renderer.render(scene, camera)
 };
 
 animate();

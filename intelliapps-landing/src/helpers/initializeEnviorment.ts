@@ -12,7 +12,10 @@ export function initializeEnviorment() {
 
   window.ZERO_VECTOR = new THREE.Vector3()
   window.MOUSE_VECTOR = new THREE.Vector3(0, 0, 100)
+  window.mouseX = 0; window.mouseY = 0;
   window.addEventListener('mousemove', event => {
+    const { clientX, clientY } = event
+    window.mouseX = clientX; window.mouseY = clientY
     window.MOUSE_VECTOR = computeMouseVector(event, camera)
   })
 

@@ -4,7 +4,5 @@ declare global {
   interface Window { 
     ZERO_VECTOR: THREE.Vector3
     MOUSE_VECTOR: THREE.Vector3
-    mouseX: number
-    mouseY: number
   }
 }

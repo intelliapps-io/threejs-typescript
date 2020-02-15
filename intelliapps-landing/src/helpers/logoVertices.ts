@@ -27,6 +27,15 @@ export const getLogoVertices = (options: ILogoVerticeOptions): THREE.Vector3[] =
 
 export const getLogoPath = (options: ILogoVerticeOptions): THREE.Path => {
   const path = new THREE.Path(), { scale } = options
-  getArray2DVertices(scale ? scale : 1).forEach(([x, y]) => path.lineTo(x, y))
+  getArray2DVertices(scale ? scale : 1).forEach(([x, y], i, points) => {
+    if (i === points.length - 1) {
+      path.lineTo(x, y)
+      path.closePath()
+      // path.c
+    } else {
+      path.lineTo(x, y)
+    }
+  })
+
   return path
 }

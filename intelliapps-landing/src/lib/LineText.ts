@@ -71,7 +71,7 @@ export class LineText {
 
     var color = new THREE.Color(0xffffff);
     for (var i = 0, l = customColor.count; i < l; i++) {
-      color.setHSL(i/ l, 0.8, 0.55);
+      color.setHSL(i/ l, 0.8, 0.52);
       color.toArray(customColor.array, i * customColor.itemSize);
     }
 

@@ -21,6 +21,8 @@ export class LineShape {
   material = getVertexShader()
   // line
   line: THREE.Line
+  // @ts-ignore
+  mesh: THREE.Mesh
   // mutable vectors
   mouseVector = new THREE.Vector3()
   randVector = new THREE.Vector3()
@@ -38,18 +40,34 @@ export class LineShape {
     const spline = new THREE.CatmullRomCurve3(this.vertices, false, 'catmullrom', 0.01)
     let positions: number[] = [], { totalPoints } = this.options
 
+    const shape = new THREE.Shape().setFromPoints(spline.getPoints(totalPoints).map(({x, y}) => new THREE.Vector2(x, y)))
+    // shape.autoClose = true
+
+    const geo = new THREE.ExtrudeBufferGeometry(shape, {
+      steps: 2,
+      depth: 1,
+      bevelEnabled: true,
+      bevelThickness: 5,
+      bevelSize: 5,
+      bevelSegments: 10,
+    })
+    geo.center()
+    geo.translate(0, 400, 0)
+    this.mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0x00ccff }))
+
     // TEMP GEO
-    const tempGeo = new THREE.Geometry()
-    tempGeo.vertices = spline.getPoints(totalPoints)
+    const tempGeo = new THREE.Geometry().fromBufferGeometry(geo)
+    // tempGeo.vertices = spline.getPoints(totalPoints)
     tempGeo.center()
     if (this.options.positioner)
       this.options.positioner(tempGeo)
 
     // get first line points
     tempGeo.vertices.forEach(({ x, y }) => positions.push(x, y, 0))
+    // geo.
 
     // go over line again x number of times
-    const repeatLines = 100
+    const repeatLines = 0
     for (let i = 0; i < (totalPoints * (repeatLines)); i += 3)
       positions.push(positions[i], positions[i + 1], rand(1000))
 
@@ -73,7 +91,7 @@ export class LineShape {
     this.geometry.setAttribute('customColor', customColor);
     var color = new THREE.Color(0xffffff);
     for (var i = 0, l = customColor.count; i < l; i++) {
-      color.setHSL(i / (customColor.array.length / (repeatLines + 1)), 0.8, 0.5);
+      color.setHSL(i / (customColor.array.length / (repeatLines + 1)), 0.8, 0.6);
       color.toArray(customColor.array, i * customColor.itemSize);
     }
   }
@@ -95,13 +113,13 @@ export class LineShape {
       this.randVector.set(this.getRand(randNum) + vert.x, this.getRand(randNum) + vert.y, this.getRand(randNum) + vert.z)
       vert.seekTarget(this.randVector, {
         maxForce: 2,
-        maxSpeed: 0.45,
+        maxSpeed: 0.4,
         ease: true
       })
 
       vert.seekTarget(this.mouseVector.setZ(vert.z), {
         maxForce: 20,
-        maxSpeed: rand(50),
+        maxSpeed: rand(40),
         avoid: true,
         maxDist: rand(100),
         // ease: true
@@ -118,4 +136,6 @@ export class LineShape {
   }
 
   public getLine = () => this.line
+
+  public getMesh = (): THREE.Mesh => this.mesh
 }

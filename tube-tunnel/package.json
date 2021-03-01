@@ -22,6 +22,6 @@
     "@types/webpack": "^4.4.24",
     "open-simplex-noise": "^2.2.0",
     "source-map-loader": "^0.2.4",
-    "three": "^0.113.2"
+    "three": "^0.125.0"
   }
 }
